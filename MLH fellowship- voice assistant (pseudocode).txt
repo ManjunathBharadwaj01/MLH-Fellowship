@@ -1,0 +1,97 @@
+engine <- pyttsx3.init('sapi5')
+voices <- engine.getProperty('voices')
+engine.setProperty('voice', voices[0].id)
+FUNCTION speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+ENDFUNCTION
+
+FUNCTION wishMe():
+    hour <- int(datetime.datetime.now().hour)
+    IF hour>=0 AND hour<12:
+        speak("Good Morning!")
+    ELSEIF hour>=12 AND hour<18:
+        speak("Good afternoon!")
+    ELSE:
+        speak("Good evening!")
+    ENDIF
+    speak("I am VISION, Please tell me how can i help you")
+ENDFUNCTION
+
+FUNCTION takeCommand():
+    r <- sr.Recognizer()
+    with sr.Microphone() as source:
+        OUTPUT "Listening...."
+        r.pause_threshold <- 1
+        audio <- r.listen(source)
+    try:
+        OUTPUT "Recognizing..."
+        query <- r.recognize_google(audio, language ='en-in')
+        OUTPUT "User said:  ", query
+    except Exception as e:
+        OUTPUT e
+        OUTPUT "Say that again please..."
+        speak("Say that again please")
+        RETURN "None"
+    RETURN query
+ENDFUNCTION
+
+FUNCTION sendemail(to, content):
+    server <- smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    f <- open("C:\\Users\\comp\\PycharmProjects\\pythonProject\\venv", "r")
+    server.login('manjunathbharadhwaj.v@gmail.com', f)
+    server.sendmail('manjunathbharadhwaj.v@gmail.com', to, content)
+    server.close()
+ENDFUNCTION
+
+IF __name__ = "__main__":
+    wishMe()
+    while True:
+    #if 1:
+        query <- takeCommand().lower()
+        # logic for executing task based on query
+                ENDFOR
+        IF 'wikipedia' in query:
+            speak('Searching Wikipedia....')
+            query <- query.replace('wikipedia', "")
+            results <- wikipedia.summary(query, sentences=2)
+            speak("According to Wikipedia")
+            OUTPUT results
+            speak(results)
+        ELSEIF 'open youtube' in query:
+            webbrowser.open("www.youtube.com")
+        ELSEIF 'open google' in query:
+            webbrowser.open("www.google.com")
+        ELSEIF 'open stack overflow' in query:
+            webbrowser.open("www.stackoverflow.com")
+        ELSEIF 'play music' in query:
+            music_dir <- 'D:\\music'
+            songs <- os.listdir(music_dir)
+            OUTPUT songs
+            os.startfile(os.path.join(music_dir, songs[0]))
+        ELSEIF 'the time' in query:
+            strTime <- datetime.datetime.now().strftime("%H:%M:%S")
+            speak("The time is , ")
+            speak(strTime)
+        ELSEIF 'send email' in query:
+            try:
+                speak("What should i say ?")
+                content <- takeCommand()
+                to <- "manjunathbharadhwaj.v@gmail.com"
+                sendemail(to, content)
+                speak("email has been sent")
+            except Exception as e:
+                OUTPUT e
+                speak("Sorry , i am not able to send an email at this moment.")
+        ELSEIF 'open facebook' in query:
+            webbrowser.open("www.facebook.com")
+        ELSEIF 'open instagram' in query:
+            webbrowser.open("www.instagram.com")
+        ELSEIF 'open whatsapp' in query:
+            webbrowser.open("https://web.whatsapp.com/")
+        ELSEIF 'weather today' in query:
+            webbrowser.open("https://weather.com/en-IN/weather/tenday/l/Bangalore+Karnataka?canonicalCityId=3a11e3a8b23fbf8668c01ac049c8b4d8df31f270ab2b1b195f5756a4407ee3d4")
+        else :
+            speak("i dont understand it")
